@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">AirAid</string>
+    <string name="language">Language</string>
+    <string name="about_us">About Us</string>
+    <string name="complain_box">Complain</string>
+    <string name="communicate">Communicate</string>
+    <string name="tag_line">the tag line will appear here</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="main_fragment_title">Description of medicines</string>
+    <string name="warning">Please take the photo of the prescription clearly.</string>
+    <string name="upload_btn">Upload Image</string>
+    <string name="medicine_name_field">Medicine Name</string>
+    <string name="piece_field">Piece</string>
+    <string name="serial_no_one">1.</string>
+    <string name="serial_no_two">2.</string>
+    <string name="serial_no_three">3.</string>
+    <string name="serial_no_four">4.</string>
+    <string name="serial_no_five">5.</string>
+    <string name="next_btn">Next</string>
+    <string name="add_btn" translatable="false">More</string>
+</resources>

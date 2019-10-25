@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AirAid</string>
+    <string name="language">ভাষা</string>
+    <string name="about_us">আমাদের সম্পর্কে</string>
+    <string name="complain_box">অভিযোগ</string>
+    <string name="communicate">যোগাযোগ</string>
+    <string name="tag_line">এখানে ট্যাগ লাইন দেখাবে</string>
+    <string name="main_fragment_title">ওষুধের বিবরণ</string>
+    <string name="warning">দয়া করে প্রেসক্রিপশনের ছবিটি স্পষ্ট করে তুলবেন।</string>
+    <string name="upload_btn">ছবি সংযুক্ত করুন</string>
+    <string name="medicine_name_field">ঔষুধের নাম</string>
+    <string name="piece_field">পিস</string>
+    <string name="serial_no_one">১।</string>
+    <string name="serial_no_five">৫।</string>
+    <string name="serial_no_four">৪।</string>
+    <string name="serial_no_three">৩।</string>
+    <string name="serial_no_two">২।</string>
+    <string name="next_btn">পরবর্তী</string>
+    <string name="add_btn" translatable="false">আরও</string>
+</resources>
