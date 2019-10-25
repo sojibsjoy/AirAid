@@ -18,5 +18,8 @@
     <string name="serial_no_four">4.</string>
     <string name="serial_no_five">5.</string>
     <string name="next_btn">Next</string>
-    <string name="add_btn" translatable="false">More</string>
+    <string name="add_btn">More</string>
+    <string name="serial_warning">Please fill the list according to your prescription\'s serial number.</string>
+    <string name="address_fragment_title">Address</string>
+    <string name="piece_empty_warning">Please enter a amount first!</string>
 </resources>

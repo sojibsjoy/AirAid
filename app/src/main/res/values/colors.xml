@@ -6,4 +6,5 @@
     <color name="pureWhite">#FFFFFF</color>
     <color name="pureBlack">#000000</color>
     <color name="img_warning">#FF1400</color>
+    <color name="img_warning_blue">#404CF0</color>
 </resources>

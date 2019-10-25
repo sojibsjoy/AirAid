@@ -6,10 +6,10 @@
     <string name="complain_box">অভিযোগ</string>
     <string name="communicate">যোগাযোগ</string>
     <string name="tag_line">এখানে ট্যাগ লাইন দেখাবে</string>
-    <string name="main_fragment_title">ওষুধের বিবরণ</string>
-    <string name="warning">দয়া করে প্রেসক্রিপশনের ছবিটি স্পষ্ট করে তুলবেন।</string>
+    <string name="main_fragment_title">ঔষধের বিবরণ</string>
+    <string name="warning">দয়া করে প্রেসক্রিপশনের ছবিটি স্পষ্ট করে তুলুন।</string>
     <string name="upload_btn">ছবি সংযুক্ত করুন</string>
-    <string name="medicine_name_field">ঔষুধের নাম</string>
+    <string name="medicine_name_field">ঔষধের নাম</string>
     <string name="piece_field">পিস</string>
     <string name="serial_no_one">১।</string>
     <string name="serial_no_five">৫।</string>
@@ -17,5 +17,8 @@
     <string name="serial_no_three">৩।</string>
     <string name="serial_no_two">২।</string>
     <string name="next_btn">পরবর্তী</string>
-    <string name="add_btn" translatable="false">আরও</string>
+    <string name="add_btn">আরও</string>
+    <string name="serial_warning">দয়া করে তালিকাটি প্রেশক্রিপশনের ক্রম অনুযায়ী পুরণ করুন।</string>
+    <string name="address_fragment_title">ঠিকানা</string>
+    <string name="piece_empty_warning">কোন পরিমাণ দেয়া হয়নি!</string>
 </resources>
