@@ -2,24 +2,42 @@ package com.binarysoftwareltd.airaid;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
+    Locale locale;
+    String appLang;
+    MainFragment mf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loadLocale();
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -29,14 +47,105 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,drawer, toolbar,
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        if(savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MainFragment()).commit();
-            navigationView.setCheckedItem(R.id.nav_language);
+        if (savedInstanceState == null) {
+            setBundle();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf).commit();
+            navigationView.setCheckedItem(R.id.nav_main);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.uManual:
+                Toast.makeText(getApplicationContext(), "User Manual clicked!", Toast.LENGTH_SHORT).show();
+                return true;
+//            case R.id.item2:
+//                Toast.makeText(getApplicationContext(), "Item 2 selected", Toast.LENGTH_SHORT).show();
+//                return true;
+//            case R.id.item3:
+//                Toast.makeText(getApplicationContext(), "Item 3 selected", Toast.LENGTH_SHORT).show();
+//                return true;
+//            case R.id.subItem1:
+//                Toast.makeText(getApplicationContext(), "Sub Item 1 selected", Toast.LENGTH_SHORT).show();
+//                return true;
+//            case R.id.subItem2:
+//                Toast.makeText(getApplicationContext(), "Sub Item 2 selected", Toast.LENGTH_SHORT).show();
+//                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void languageDialog() {
+        //array of languages
+        final String[] listItems = {"বাংলা", "English"};
+        final AlertDialog.Builder alb = new AlertDialog.Builder(MainActivity.this);
+        alb.setTitle(R.string.language_alertdialog_title);
+        alb.setSingleChoiceItems(listItems, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (i == 0) {
+                    //bengali
+                    if (appLang.equals("bn")) {
+
+                    } else {
+                        setLocale("bn");
+                        refresh();
+                    }
+                }
+                if (i == 1) {
+                    //english
+                    if (appLang.equals("en")) {
+
+                    } else {
+                        setLocale("en");
+                        refresh();
+                    }
+                }
+                dialog.dismiss();
+            }
+        });
+        AlertDialog ald = alb.create();
+        ald.show();
+    }
+
+    private void setLocale(String lang) {
+        appLang = lang;
+        locale = new Locale(lang);
+        Resources res = getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.locale = locale;
+        res.updateConfiguration(conf, dm);
+        //save data to shared preferences
+        SharedPreferences.Editor editor = getSharedPreferences("Settings", MODE_PRIVATE).edit();
+        editor.putString("My_lang", lang);
+        editor.apply();
+    }
+
+    private void refresh() {
+        Intent refresh = new Intent(this, MainActivity.class);
+        startActivity(refresh);
+        finish();
+    }
+
+    // load language saved in shared preference
+    public void loadLocale() {
+        SharedPreferences prefs = getSharedPreferences("Settings", Activity.MODE_PRIVATE);
+        String language = prefs.getString("My_lang", "");
+        setLocale(language);
     }
 
     @Override
@@ -50,29 +159,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch(menuItem.getItemId()) {
+        switch (menuItem.getItemId()) {
+            case R.id.nav_main:
+                setBundle();
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mf).commit();
+                break;
+            case R.id.nav_my_orders:
+                Toast.makeText(getApplicationContext(), "My orders clicked", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.nav_language:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new MainFragment()).commit();
+                languageDialog();
                 break;
             case R.id.nav_complain_box:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new AddressFragment()).commit();
+                Toast.makeText(getApplicationContext(), "Complain Box Clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_about_us:
-                Toast.makeText(getApplicationContext(),"About Us Clicked",Toast.LENGTH_SHORT).show();
+                AboutUsFragment abf = new AboutUsFragment();
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, abf).commit();
                 break;
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    private void setBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString("language", appLang);
+        mf = new MainFragment();
+        mf.setArguments(bundle);
+    }
+
     @Override
     public void onBackPressed() {
-        if(drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if (count == 0) {
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            } else {
+                AlertDialog.Builder alb = new AlertDialog.Builder(MainActivity.this);
+                alb.setIcon(R.drawable.question);
+                alb.setTitle(R.string.exit_title);
+                alb.setMessage(R.string.exit_message);
+                alb.setPositiveButton(R.string.exit_no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                alb.setNegativeButton(R.string.exit_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+                AlertDialog ald = alb.create();
+                ald.show();
+            }
         } else {
-            super.onBackPressed();
+            getSupportFragmentManager().popBackStack();
+
         }
     }
 }

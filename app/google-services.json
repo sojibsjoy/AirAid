@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "949388816213",
+    "firebase_url": "https://airaid-ae57d.firebaseio.com",
+    "project_id": "airaid-ae57d",
+    "storage_bucket": "airaid-ae57d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949388816213:android:4e8693fc279b4d749b49dc",
+        "android_client_info": {
+          "package_name": "com.binarysoftwareltd.airaid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "949388816213-6237jg0c5idi31o8if762n617frn3mt7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.binarysoftwareltd.airaid",
+            "certificate_hash": "e2c6c158f767bc94dd188106e50ef1ab90362e95"
+          }
+        },
+        {
+          "client_id": "949388816213-1gr18rovvfftn2c8u5tlchippn3h1ig7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWJcl-8q9Etea8byIW0J0cok2O0VAN64s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "949388816213-1gr18rovvfftn2c8u5tlchippn3h1ig7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

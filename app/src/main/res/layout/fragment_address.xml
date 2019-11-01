@@ -24,12 +24,174 @@
             android:textSize="25sp"
             android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/pImg"
+        <TextView
+            android:gravity="center"
+            android:id="@+id/numWarning"
             android:layout_width="match_parent"
-            android:layout_height="280dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"/>
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="15dp"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="@string/number_warning"
+            android:textColor="@color/img_warning"
+            android:textSize="15sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="15dp"
+            android:gravity="center_vertical"
+            android:weightSum="8"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:contentDescription="@string/name_field"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_person"/>
+
+            <EditText
+                android:id="@+id/nameField"
+                android:layout_marginStart="5dp"
+                android:layout_width="0dp"
+                android:layout_weight="7"
+                android:layout_height="70dp"
+                android:hint="@string/name_field" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="15dp"
+            android:gravity="center_vertical"
+            android:weightSum="8"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:contentDescription="@string/phone_field"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_phone"/>
+
+            <EditText
+                android:id="@+id/phoneField"
+                android:layout_marginStart="5dp"
+                android:inputType="phone"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                android:layout_weight="4"
+                android:hint="@string/phone_field" />
+
+            <EditText
+                android:id="@+id/areaField"
+                android:layout_marginStart="10dp"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                android:layout_weight="3"
+                android:hint="@string/area_field" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="15dp"
+            android:gravity="center_vertical"
+            android:weightSum="8"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:contentDescription="@string/address_fragment_title"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_location"/>
+
+            <EditText
+                android:id="@+id/addressField"
+                android:layout_marginStart="5dp"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                android:layout_weight="7"
+                android:hint="@string/address_fragment_title" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="15dp"
+            android:gravity="center_vertical"
+            android:weightSum="8"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:contentDescription="@string/details_field"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_details"/>
+
+            <EditText
+                android:id="@+id/detailsField"
+                android:layout_marginStart="5dp"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                android:layout_weight="7"
+                android:hint="@string/details_field" />
+
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/confirmCV"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="15dp"
+            app:cardCornerRadius="18dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/card_view_bg"
+                android:gravity="center">
+
+                <ImageView
+                    android:contentDescription="@string/order_now"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_confirm" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="@string/order_now"
+                    android:textColor="@color/pureWhite"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 

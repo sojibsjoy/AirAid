@@ -7,7 +7,7 @@
     <string name="communicate">যোগাযোগ</string>
     <string name="tag_line">এখানে ট্যাগ লাইন দেখাবে</string>
     <string name="main_fragment_title">ঔষধের বিবরণ</string>
-    <string name="warning">দয়া করে প্রেসক্রিপশনের ছবিটি স্পষ্ট করে তুলুন।</string>
+    <string name="warning">দয়া করে প্রেসক্রিপশনের একটি পরিষ্কার ছবি যুক্ত করুন।</string>
     <string name="upload_btn">ছবি সংযুক্ত করুন</string>
     <string name="medicine_name_field">ঔষধের নাম</string>
     <string name="piece_field">পিস</string>
@@ -21,4 +21,25 @@
     <string name="serial_warning">দয়া করে তালিকাটি প্রেশক্রিপশনের ক্রম অনুযায়ী পুরণ করুন।</string>
     <string name="address_fragment_title">ঠিকানা</string>
     <string name="piece_empty_warning">কোন পরিমাণ দেয়া হয়নি!</string>
+    <string name="home_item_title">হোম</string>
+    <string name="language_alertdialog_title">ভাষা পরিবর্তন</string>
+    <string name="exit_title">বাহির</string>
+    <string name="exit_message">আপনি কি বের হতে চান?</string>
+    <string name="exit_yes">হ্যাঁ</string>
+    <string name="exit_no">না</string>
+    <string name="fields_empty_warning">দয়া করে আগে আপনার অর্ডারটি দিন</string>
+    <string name="my_orders_title">আমার অর্ডারসমূহ</string>
+    <string name="user_manual_title">ব্যবহার বিধি</string>
+    <string name="name_field">নাম</string>
+    <string name="phone_field">ফোন</string>
+    <string name="area_field">এলাকা</string>
+    <string name="city_field">শহর</string>
+    <string name="details_field">বিস্তারিত</string>
+    <string name="number_warning">আপনার মোবাইল নাম্বারটি দিতেই হবে!</string>
+    <string name="order_now">অর্ডারটি নিশ্চিত করুন!</string>
+    <string name="phone_empty_warning">দয়া করে আপনার মোবাইল নাম্বারটি দিন</string>
+    <string name="number_valid_warning">দয়া করে একটি চলমান ফোন নাম্বার দিন</string>
+    <string name="address_warning">দয়া করে আপনার ঠিকানাটি দিন</string>
+    <string name="address_valid_warning">আপনার ঠিকানাটি অনেক ছোট</string>
+    <string name="app_version">ভার্সন 1.0</string>
 </resources>

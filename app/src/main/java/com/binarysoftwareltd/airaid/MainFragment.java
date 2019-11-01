@@ -1,6 +1,10 @@
 package com.binarysoftwareltd.airaid;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,9 +18,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.squareup.otto.Subscribe;
 
@@ -25,11 +31,15 @@ import java.util.Locale;
 import static android.app.Activity.RESULT_OK;
 
 public class MainFragment extends Fragment {
+    private static final String STATE_USER = "user";
+    private String mUser;
+    private View fragmentView;
     private char[] bengaliNum = {'০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'};
     private boolean bengaliFlag = false;
     private ImageView img;
     private Uri imgUri;
     private boolean imgUploadedFlag = false;
+    private boolean nameFlag = false;
     private boolean orderFlag = false;
     private int[] serialNos = new int[100];
     private String[] names = new String[100];
@@ -44,25 +54,49 @@ public class MainFragment extends Fragment {
     private CardView uploadCV;
     private CardView addCV;
     private CardView nextCV;
+    private String appLang;
+    private Intent intent;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Check whether we're recreating a previously destroyed instance
+        if (savedInstanceState != null) {
+            // Restore value of members from saved state
+            mUser = savedInstanceState.getString(STATE_USER);
+        } else {
+            // Probably initialize members with default values for a new instance
+            mUser = "NewUser";
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString(STATE_USER, mUser);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //this vw is the main view object to find all elements in main fragment
+        if(fragmentView != null) {
+            return fragmentView;
+        }
         View vw = inflater.inflate(R.layout.fragment_main, container, false);
-        ///initializing all variables by using a method
-        String langu = Locale.getDefault().getDisplayLanguage();
-        if (langu.equals("বাংলা"))
+        appLang = getArguments().getString("language");
+        if (appLang.equals("bn"))
             bengaliFlag = true;
+        ///initializing all variables by using a method
         initializeAll(vw);
         //this is the cardView click method to upload an image
         uploadCV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
+                intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                getActivity().startActivityForResult(intent, 111);
+                getActivity().startActivityForResult(intent, 1);
             }
         });
         //this is the cardView click method to add more input field for medicine details
@@ -93,26 +127,54 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dataCollection();
-                valueCheck();
-                if (orderFlag) {
-                    AddressFragment addressFragment = new AddressFragment();
-                    Bundle bundle = new Bundle();
-                    if (imgUploadedFlag)
-                        bundle.putString("imgUri", imgUri.toString());
-                    bundle.putInt("cValue", counter);
-                    bundle.putIntArray("mSerialNos", serialNos);
-                    bundle.putStringArray("mNames", names);
-                    bundle.putIntArray("mPieces", pieces);
-                    addressFragment.setArguments(bundle);
-                    FragmentManager manager = getFragmentManager();
-                    manager.beginTransaction().replace(R.id.fragment_container, addressFragment).commit();
+                checkNames();
+                if (imgUploadedFlag) {
+                    valueCheck();
+                    if (orderFlag) {
+                        proceed();
+                    } else {
+                        Toast.makeText(getContext(), R.string.piece_empty_warning, Toast.LENGTH_SHORT).show();
+                        mPieceField[0].requestFocus();
+                    }
+                } else if (nameFlag) {
+                    valueCheck();
+                    if (orderFlag) {
+                        proceed();
+                    } else {
+                        Toast.makeText(getContext(), R.string.piece_empty_warning, Toast.LENGTH_SHORT).show();
+                        mPieceField[0].requestFocus();
+                    }
                 } else {
-                    Toast.makeText(getContext(), R.string.piece_empty_warning, Toast.LENGTH_SHORT).show();
-                    mPieceField[0].requestFocus();
+                    Toast.makeText(getContext(), R.string.fields_empty_warning, Toast.LENGTH_SHORT).show();
                 }
             }
         });
+        fragmentView = vw;
         return vw;
+    }
+
+    private void proceed() {
+        AddressFragment addressFragment = new AddressFragment();
+        Bundle bundle = new Bundle();
+        if (imgUploadedFlag)
+            bundle.putString("imgUri", imgUri.toString());
+        bundle.putInt("cValue", counter);
+        bundle.putIntArray("mSerialNos", serialNos);
+        bundle.putStringArray("mNames", names);
+        bundle.putIntArray("mPieces", pieces);
+        addressFragment.setArguments(bundle);
+        FragmentManager manager = getFragmentManager();
+        manager.beginTransaction().add(R.id.fragment_container, addressFragment).addToBackStack("key").commit();
+    }
+
+    private void checkNames() {
+        int i;
+        for (i = 0; i < counter; i++) {
+            if (!names[i].equals("")) {
+                nameFlag = true;
+                break;
+            }
+        }
     }
 
     private void setBengaliDigits() {
@@ -135,8 +197,10 @@ public class MainFragment extends Fragment {
     private void valueCheck() {
         int i;
         for (i = 0; i < counter; i++) {
-            if (pieces[i] > 0)
+            if (pieces[i] > 0) {
                 orderFlag = true;
+                break;
+            }
         }
     }
 
@@ -187,7 +251,7 @@ public class MainFragment extends Fragment {
         serials[4] = v.findViewById(R.id.serialNumV);
         mNameField[0] = v.findViewById(R.id.medicineNameFieldI);
         mNameField[1] = v.findViewById(R.id.medicineNameFieldII);
-        mNameField[2] = v.findViewById(R.id.medicineNameFieldII);
+        mNameField[2] = v.findViewById(R.id.medicineNameFieldIII);
         mNameField[3] = v.findViewById(R.id.medicineNameFieldIV);
         mNameField[4] = v.findViewById(R.id.medicineNameFieldV);
         mPieceField[0] = v.findViewById(R.id.medicinePieceFieldI);
@@ -205,7 +269,7 @@ public class MainFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // Don't forget to check requestCode before continuing your job
-        if (requestCode == 111 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null && data.getData() != null) {
             // Do your job
             imgUri = data.getData();
             setImageLayout();
@@ -225,5 +289,10 @@ public class MainFragment extends Fragment {
             iLayout.removeAllViews();
         iLayout.addView(v, params);
         img = v.findViewById(R.id.pImage);
+    }
+
+    public boolean allowBackPressed() {
+
+        return false;
     }
 }
