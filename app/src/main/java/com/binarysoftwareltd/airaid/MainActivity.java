@@ -7,10 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +20,6 @@ import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
@@ -54,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         if (savedInstanceState == null) {
             setBundle();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf,"MainFragment").commit();
             navigationView.setCheckedItem(R.id.nav_main);
         }
     }
@@ -166,11 +164,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getItemId()) {
             case R.id.nav_main:
                 setBundle();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf).commit();
+                Fragment fm = getSupportFragmentManager().findFragmentByTag("MainFragment");
+                if (fm != null && fm.isVisible()) {
+                    navigationView.setCheckedItem(R.id.nav_main);
+                    break;
+                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf, "MainFragment").commit();
                 navigationView.setCheckedItem(R.id.nav_main);
                 break;
             case R.id.nav_my_orders:
-                Toast.makeText(getApplicationContext(), "My orders clicked", Toast.LENGTH_SHORT).show();
+                MyOrdersFragment mof = new MyOrdersFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mof, "MyOrdersFragment").commit();
                 navigationView.setCheckedItem(R.id.nav_my_orders);
                 break;
             case R.id.nav_language:
@@ -180,8 +184,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(getApplicationContext(), "Complain Box Clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_about_us:
+                Fragment fau = getSupportFragmentManager().findFragmentByTag("AboutUsFragment");
+                if (fau != null && fau.isVisible()) {
+                    break;
+                }
                 AboutUsFragment abf = new AboutUsFragment();
-                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, abf).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, abf,"AboutUsFragment").commit();
                 break;
         }
         drawer.closeDrawer(GravityCompat.START);
@@ -197,6 +205,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+        Fragment fau = getSupportFragmentManager().findFragmentByTag("AboutUsFragment");
+        if (fau != null && fau.isVisible()) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf, "MainFragment").commit();
+            navigationView.setCheckedItem(R.id.nav_main);
+            return;
+        }
         int count = getSupportFragmentManager().getBackStackEntryCount();
         if (count == 0) {
             if (drawer.isDrawerOpen(GravityCompat.START)) {

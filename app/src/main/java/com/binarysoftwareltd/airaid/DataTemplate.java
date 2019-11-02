@@ -8,6 +8,14 @@ public class DataTemplate {
 
     }
 
+    public DataTemplate(String name) {
+        this.name = name;
+    }
+
+    public DataTemplate(int piece) {
+        this.piece = piece;
+    }
+
     public DataTemplate(String name, int piece) {
         this.name = name;
         this.piece = piece;

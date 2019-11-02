@@ -76,6 +76,7 @@ public class MainFragment extends Fragment {
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -164,7 +165,7 @@ public class MainFragment extends Fragment {
         bundle.putIntArray("mPieces", pieces);
         addressFragment.setArguments(bundle);
         FragmentManager manager = getFragmentManager();
-        manager.beginTransaction().add(R.id.fragment_container, addressFragment).addToBackStack("key").commit();
+        manager.beginTransaction().add(R.id.fragment_container, addressFragment,"AddressFragment").addToBackStack("key").commit();
     }
 
     private void checkNames() {
@@ -280,7 +281,6 @@ public class MainFragment extends Fragment {
         }
     }
 
-
     private void setImageLayout() {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -289,10 +289,5 @@ public class MainFragment extends Fragment {
             iLayout.removeAllViews();
         iLayout.addView(v, params);
         img = v.findViewById(R.id.pImage);
-    }
-
-    public boolean allowBackPressed() {
-
-        return false;
     }
 }

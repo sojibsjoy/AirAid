@@ -35,7 +35,7 @@
     <string name="city_field">শহর</string>
     <string name="number_warning">আপনার মোবাইল নাম্বারটি অবশ্যই দিতে হবে!</string>
     <string name="order_now">অর্ডারটি নিশ্চিত করুন!</string>
-    <string name="phone_empty_warning">দয়া করে আপনার মোবাইল নাম্বারটি দিন</string>
+    <string name="mobile_no_empty_warning">দয়া করে আপনার মোবাইল নাম্বারটি দিন</string>
     <string name="number_valid_warning">দয়া করে সঠিক মোবাইল নাম্বার দিন</string>
     <string name="address_warning">দয়া করে আপনার ঠিকানাটি দিন</string>
     <string name="address_valid_warning">আপনার ঠিকানাটি অনেক ছোট</string>
@@ -46,6 +46,7 @@
     <string name="ward_no">ওয়ার্ড নং</string>
     <string name="road_no">রোড নং</string>
     <string name="colony_field">মহল্লা</string>
-    <string name="phone_field">মোবাইল নং</string>
+    <string name="mobile_no_field">মোবাইল নং</string>
     <string name="others_field">অন্যান্য</string>
+    <string name="total_order">সর্বোমোট অর্ডারঃ</string>
 </resources>

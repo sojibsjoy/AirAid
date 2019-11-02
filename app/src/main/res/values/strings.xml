@@ -37,7 +37,7 @@
     <string name="others_field">Others</string>
     <string name="number_warning">You must enter your mobile number!</string>
     <string name="order_now">Confirm order!</string>
-    <string name="phone_empty_warning">Please enter your mobile number</string>
+    <string name="mobile_no_empty_warning">Please enter your mobile number</string>
     <string name="number_valid_warning">Please enter a valid mobile number</string>
     <string name="address_warning">Please enter your address</string>
     <string name="address_valid_warning">Your address is too short</string>
@@ -51,5 +51,6 @@
     <string name="ward_no">Ward No</string>
     <string name="road_no">Road No</string>
     <string name="colony_field">Colony</string>
-    <string name="phone_field">Mobile No</string>
+    <string name="mobile_no_field">Mobile No</string>
+    <string name="total_order">Total Order:</string>
 </resources>
