@@ -31,15 +31,21 @@
     <string name="my_orders_title">আমার অর্ডারসমূহ</string>
     <string name="user_manual_title">ব্যবহার বিধি</string>
     <string name="name_field">নাম</string>
-    <string name="phone_field">ফোন</string>
     <string name="area_field">এলাকা</string>
     <string name="city_field">শহর</string>
-    <string name="details_field">বিস্তারিত</string>
-    <string name="number_warning">আপনার মোবাইল নাম্বারটি দিতেই হবে!</string>
+    <string name="number_warning">আপনার মোবাইল নাম্বারটি অবশ্যই দিতে হবে!</string>
     <string name="order_now">অর্ডারটি নিশ্চিত করুন!</string>
     <string name="phone_empty_warning">দয়া করে আপনার মোবাইল নাম্বারটি দিন</string>
-    <string name="number_valid_warning">দয়া করে একটি চলমান ফোন নাম্বার দিন</string>
+    <string name="number_valid_warning">দয়া করে সঠিক মোবাইল নাম্বার দিন</string>
     <string name="address_warning">দয়া করে আপনার ঠিকানাটি দিন</string>
     <string name="address_valid_warning">আপনার ঠিকানাটি অনেক ছোট</string>
     <string name="app_version">ভার্সন 1.0</string>
+    <string name="confirm_dialog_message">আপনি কি অর্ডারটি করতে নিশ্চিত?</string>
+    <string name="confirm_title">নিশ্চিত</string>
+    <string name="house_no">বাসা/হোল্ডিং নং</string>
+    <string name="ward_no">ওয়ার্ড নং</string>
+    <string name="road_no">রোড নং</string>
+    <string name="colony_field">মহল্লা</string>
+    <string name="phone_field">মোবাইল নং</string>
+    <string name="others_field">অন্যান্য</string>
 </resources>

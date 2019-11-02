@@ -2,22 +2,20 @@ package com.binarysoftwareltd.airaid;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.provider.Settings.Secure;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,17 +26,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AddressFragment extends Fragment {
-    private int orderNo = 1;
-    private int orderSerial = 0;
-    private DatabaseReference dbReference, dbr;
+    private String deviceID;
+    private int orderNo;
+    private int orderSerial;
+    private DatabaseReference dbr, dbReference;
     private static final String STATE_USER = "user";
     private String mUser;
     private View oldView;
     private TextView numWarning;
-    private EditText nameField, phoneField, areaField, addressField, detailsField;
+    private EditText nameField, mobileNoField, areaField, houseNoField, wardNoField, roadNoField, colonyField, othersField;
     private CardView confirmCV;
     private int len;
-    private String nameOfPerson, phoneNumber, areaName, addressOfOrder, detailsOfOrder;
+    private String nameOfPerson, phoneNumber, areaName, houseNo, wardNo, roadNo, colony, othersOfAddress;
     private int[] serialNos = new int[100];
     private String[] names = new String[100];
     private int[] pieces = new int[100];
@@ -72,6 +71,7 @@ public class AddressFragment extends Fragment {
         }
         View v = inflater.inflate(R.layout.fragment_address, container, false);
         initializeAll(v);
+        deviceID = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         Bundle bundle = getArguments();
         if (bundle != null) {
             len = bundle.getInt("cValue");
@@ -93,36 +93,31 @@ public class AddressFragment extends Fragment {
 
     private void checkDetails() {
         if (!phoneNumber.equals("")) {
-            if (phoneNumber.length() > 10) {
-                if (!addressOfOrder.equals("")) {
-                    if (addressField.length() >= 5) {
-                        checkOrderSerial();
-                    } else {
-                        addressField.requestFocus();
-                        Toast.makeText(getContext(), R.string.address_valid_warning, Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    addressField.requestFocus();
-                    Toast.makeText(getContext(), R.string.address_warning, Toast.LENGTH_SHORT).show();
-                }
+            //this condition must be equals to 11
+            if (phoneNumber.length() == 11) {
+                checkOrderSerial();
             } else {
-                phoneField.requestFocus();
+                mobileNoField.requestFocus();
                 Toast.makeText(getContext(), R.string.number_valid_warning, Toast.LENGTH_SHORT).show();
             }
         } else {
-            phoneField.requestFocus();
+            mobileNoField.requestFocus();
             Toast.makeText(getContext(), R.string.number_warning, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void checkOrderSerial() {
-        dbr = FirebaseDatabase.getInstance().getReference(phoneNumber).child("currentOrderSerial");
-        dbr.addValueEventListener(new ValueEventListener() {
+        orderSerial = 0;
+        dbr = FirebaseDatabase.getInstance().getReference().child(deviceID + " sub");
+        DatabaseReference newDR = dbr.child(phoneNumber);
+        DatabaseReference newR = newDR.child("currentOrderSerial");
+        newR.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Integer value = dataSnapshot.getValue(Integer.class);
-                if (value != null)
+                if (value != null) {
                     orderSerial = value;
+                }
             }
 
             @Override
@@ -155,29 +150,23 @@ public class AddressFragment extends Fragment {
     }
 
     private void setOrderSerial() {
-//        dbr = FirebaseDatabase.getInstance().getReference(phoneNumber);
-//        if(orderNo <= orderSerial) {
-//            orderNo = orderSerial;
-//            orderNo += 1;
-//        }
-//        Map<String, Integer> orderSerialMap = new HashMap<>();
-//        orderSerialMap.put("currentOrderSerial",orderNo);
-
-        dbr = FirebaseDatabase.getInstance().getReference();
-        if (orderNo <= orderSerial) {
-            orderNo = orderSerial;
-            orderNo += 1;
-        }
+        orderNo = orderSerial;
+        orderNo += 1;
+        dbr = FirebaseDatabase.getInstance().getReference(deviceID + " sub");
         OrderSerial osObject = new OrderSerial(orderNo);
         Map<String, Object> orderSerialMap = new HashMap<>();
         orderSerialMap.put(phoneNumber, osObject);
         dbr.updateChildren(orderSerialMap);
-//        dbr.setValue(osObject);
+        AddressOfOrder addressObject = new AddressOfOrder(nameOfPerson,phoneNumber,areaName,houseNo,wardNo,roadNo,colony,othersOfAddress);
+        DatabaseReference dtbsRfnc = dbr.child(phoneNumber);
+        Map<String, Object> addressMap = new HashMap<>();
+        addressMap.put("Address", addressObject);
+        dtbsRfnc.updateChildren(addressMap);
         uploadAllData();
     }
 
     private void uploadAllData() {
-        dbReference = FirebaseDatabase.getInstance().getReference(phoneNumber).child("orderNo: " + orderNo);
+        dbReference = FirebaseDatabase.getInstance().getReference(deviceID).child(phoneNumber).child("orderNo: " + orderNo);
         DataTemplate dtObject;
         Map<String, Object> orderMap = new HashMap<>();
         int i;
@@ -185,27 +174,32 @@ public class AddressFragment extends Fragment {
             if (pieces[i] != 0) {
                 dtObject = new DataTemplate(names[i], pieces[i]);
                 orderMap.put("serialNo: " + serialNos[i], dtObject);
-                dbr.updateChildren(orderMap);
-                //dbReference.child("serialNo: "+serialNos[i]).setValue(dtObject);
+                dbReference.updateChildren(orderMap);
             }
         }
     }
 
     private void collectAllData() {
         nameOfPerson = nameField.getText().toString();
-        phoneNumber = phoneField.getText().toString();
+        phoneNumber = mobileNoField.getText().toString();
         areaName = areaField.getText().toString();
-        addressOfOrder = addressField.getText().toString();
-        detailsOfOrder = detailsField.getText().toString();
+        houseNo = houseNoField.getText().toString();
+        wardNo = wardNoField.getText().toString();
+        roadNo = roadNoField.getText().toString();
+        colony = colonyField.getText().toString();
+        othersOfAddress = othersField.getText().toString();
     }
 
-    private void initializeAll(View v) {
+    private void initializeAll(@NonNull View v) {
         numWarning = v.findViewById(R.id.numWarning);
         nameField = v.findViewById(R.id.nameField);
-        phoneField = v.findViewById(R.id.phoneField);
+        mobileNoField = v.findViewById(R.id.mobileNoField);
         areaField = v.findViewById(R.id.areaField);
-        addressField = v.findViewById(R.id.addressField);
-        detailsField = v.findViewById(R.id.detailsField);
+        houseNoField = v.findViewById(R.id.houseNoField);
+        wardNoField = v.findViewById(R.id.wardNoField);
+        roadNoField = v.findViewById(R.id.roadNoField);
+        colonyField = v.findViewById(R.id.colonyField);
+        othersField = v.findViewById(R.id.othersField);
         confirmCV = v.findViewById(R.id.confirmCV);
     }
 }

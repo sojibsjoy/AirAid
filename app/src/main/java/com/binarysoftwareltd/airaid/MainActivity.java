@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Locale locale;
     String appLang;
     MainFragment mf;
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
@@ -165,10 +166,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getItemId()) {
             case R.id.nav_main:
                 setBundle();
-                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mf).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf).commit();
+                navigationView.setCheckedItem(R.id.nav_main);
                 break;
             case R.id.nav_my_orders:
                 Toast.makeText(getApplicationContext(), "My orders clicked", Toast.LENGTH_SHORT).show();
+                navigationView.setCheckedItem(R.id.nav_my_orders);
                 break;
             case R.id.nav_language:
                 languageDialog();

@@ -32,18 +32,24 @@
     <string name="my_orders_title">My orders</string>
     <string name="user_manual_title">User Manual</string>
     <string name="name_field">Name</string>
-    <string name="phone_field">Phone</string>
     <string name="area_field">Area</string>
     <string name="city_field">City</string>
-    <string name="details_field">Details</string>
+    <string name="others_field">Others</string>
     <string name="number_warning">You must enter your mobile number!</string>
     <string name="order_now">Confirm order!</string>
     <string name="phone_empty_warning">Please enter your mobile number</string>
-    <string name="number_valid_warning">Please enter a valid phone number</string>
+    <string name="number_valid_warning">Please enter a valid mobile number</string>
     <string name="address_warning">Please enter your address</string>
     <string name="address_valid_warning">Your address is too short</string>
     <string name="app_version">Version 1.0</string>
     <string name="developed_by" translatable="false">Developed By</string>
     <string name="connect_with_us" translatable="false">CONNECT WITH US</string>
     <string name="more_apps" translatable="false">More Apps</string>
+    <string name="confirm_dialog_message">Are you sure want to order?</string>
+    <string name="confirm_title">Confirm</string>
+    <string name="house_no">House/Holding No</string>
+    <string name="ward_no">Ward No</string>
+    <string name="road_no">Road No</string>
+    <string name="colony_field">Colony</string>
+    <string name="phone_field">Mobile No</string>
 </resources>
