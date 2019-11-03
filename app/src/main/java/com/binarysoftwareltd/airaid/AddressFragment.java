@@ -1,8 +1,10 @@
 package com.binarysoftwareltd.airaid;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -45,13 +47,39 @@ public class AddressFragment extends Fragment {
     private EditText nameField, mobileNoField, areaField, houseNoField, wardNoField, roadNoField, colonyField, othersField;
     private CardView confirmCV;
     private int len;
-    private String nameOfPerson, phoneNumber, areaName, houseNo, wardNo, roadNo, colony, othersOfAddress;
+    private String nameOfPerson, mobileNumber, areaName, houseNo, wardNo, roadNo, colony, othersOfAddress;
     private int[] serialNos = new int[100];
     private String[] names = new String[100];
     private int[] pieces = new int[100];
     private String imageUri;
     private Uri imgUri;
     private StorageReference stR;
+
+    private void setAllData() {
+        nameField.setText(nameOfPerson);
+        mobileNoField.setText(mobileNumber);
+        areaField.setText(areaName);
+        houseNoField.setText(houseNo);
+        wardNoField.setText(wardNo);
+        roadNoField.setText(roadNo);
+        colonyField.setText(colony);
+        othersField.setText(othersOfAddress);
+    }
+
+    private void loadFromPhone() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("Addresses", Activity.MODE_PRIVATE);
+        nameOfPerson = prefs.getString("name", "");
+        mobileNumber = prefs.getString("mobileNo", "");
+        areaName = prefs.getString("area", "");
+        houseNo = prefs.getString("houseNo", "");
+        wardNo = prefs.getString("wardNo", "");
+        roadNo = prefs.getString("roadNo", "");
+        colony = prefs.getString("colony", "");
+        othersOfAddress = prefs.getString("others", "");
+        if(mobileNumber!=null) {
+            setAllData();
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,6 +109,7 @@ public class AddressFragment extends Fragment {
         }
         View v = inflater.inflate(R.layout.fragment_address, container, false);
         initializeAll(v);
+        loadFromPhone();
         deviceID = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -95,16 +124,30 @@ public class AddressFragment extends Fragment {
             public void onClick(View v) {
                 collectAllData();
                 checkDetails();
+                saveToPhone();
             }
         });
         oldView = v;
         return v;
     }
 
+    private void saveToPhone() {
+        SharedPreferences.Editor editor = getActivity().getSharedPreferences("Addresses", getActivity().MODE_PRIVATE).edit();
+        editor.putString("name", nameOfPerson);
+        editor.putString("mobileNo", mobileNumber);
+        editor.putString("area", areaName);
+        editor.putString("houseNo", houseNo);
+        editor.putString("wardNo", wardNo);
+        editor.putString("roadNo", roadNo);
+        editor.putString("colony", colony);
+        editor.putString("others", othersOfAddress);
+        editor.apply();
+    }
+
     private void checkDetails() {
-        if (!phoneNumber.equals("")) {
+        if (!mobileNumber.equals("")) {
             //this condition must be equals to 11
-            if (phoneNumber.length() == 11) {
+            if (mobileNumber.length() == 11) {
                 checkOrderSerial();
             } else {
                 mobileNoField.requestFocus();
@@ -119,7 +162,7 @@ public class AddressFragment extends Fragment {
     private void checkOrderSerial() {
         orderSerial = 0;
         dbr = FirebaseDatabase.getInstance().getReference().child(deviceID + " sub");
-        DatabaseReference newDR = dbr.child(phoneNumber);
+        DatabaseReference newDR = dbr.child(mobileNumber);
         DatabaseReference newR = newDR.child("currentOrderSerial");
         newR.addValueEventListener(new ValueEventListener() {
             @Override
@@ -141,8 +184,8 @@ public class AddressFragment extends Fragment {
     private void showConfirmDialog() {
         AlertDialog.Builder alb = new AlertDialog.Builder(getContext());
         alb.setIcon(R.drawable.question);
-        alb.setTitle("Confirm");
-        alb.setMessage("Are you sure want to order?");
+        alb.setTitle(R.string.confirm_title);
+        alb.setMessage(R.string.confirm_dialog_message);
         alb.setPositiveButton(R.string.exit_no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -165,10 +208,10 @@ public class AddressFragment extends Fragment {
         dbr = FirebaseDatabase.getInstance().getReference(deviceID + " sub");
         OrderSerial osObject = new OrderSerial(orderNo);
         Map<String, Object> orderSerialMap = new HashMap<>();
-        orderSerialMap.put(phoneNumber, osObject);
+        orderSerialMap.put(mobileNumber, osObject);
         dbr.updateChildren(orderSerialMap);
-        AddressOfOrder addressObject = new AddressOfOrder(nameOfPerson,phoneNumber,areaName,houseNo,wardNo,roadNo,colony,othersOfAddress);
-        DatabaseReference dtbsRfnc = dbr.child(phoneNumber);
+        AddressOfOrder addressObject = new AddressOfOrder(nameOfPerson, mobileNumber,areaName,houseNo,wardNo,roadNo,colony,othersOfAddress);
+        DatabaseReference dtbsRfnc = dbr.child(mobileNumber);
         Map<String, Object> addressMap = new HashMap<>();
         addressMap.put("Address", addressObject);
         dtbsRfnc.updateChildren(addressMap);
@@ -176,7 +219,7 @@ public class AddressFragment extends Fragment {
     }
 
     private void uploadAllData() {
-        dbReference = FirebaseDatabase.getInstance().getReference(deviceID).child(phoneNumber).child("orderNo: " + orderNo);
+        dbReference = FirebaseDatabase.getInstance().getReference(deviceID).child(mobileNumber).child("orderNo: " + orderNo);
         DataTemplate dtObject;
         Map<String, Object> orderMap = new HashMap<>();
         int i;
@@ -200,7 +243,7 @@ public class AddressFragment extends Fragment {
         if(imageUri!=null) {
             imgUri = Uri.parse(imageUri);
             stR = FirebaseStorage.getInstance().getReference(deviceID);
-            StorageReference dtR = stR.child(phoneNumber);
+            StorageReference dtR = stR.child(mobileNumber);
             StorageReference ref = dtR.child("orderNo: " + orderNo+ "." + getExtension(imgUri));
             ref.putFile(imgUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -222,7 +265,7 @@ public class AddressFragment extends Fragment {
 
     private void collectAllData() {
         nameOfPerson = nameField.getText().toString();
-        phoneNumber = mobileNoField.getText().toString();
+        mobileNumber = mobileNoField.getText().toString();
         areaName = areaField.getText().toString();
         houseNo = houseNoField.getText().toString();
         wardNo = wardNoField.getText().toString();
