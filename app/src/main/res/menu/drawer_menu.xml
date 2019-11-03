@@ -6,10 +6,10 @@
             android:id="@+id/nav_main"
             android:icon="@drawable/ic_home"
             android:title="@string/home_item_title" />
-        <item
-            android:id="@+id/nav_my_orders"
-            android:icon="@drawable/ic_my_order"
-            android:title="@string/my_orders_title"/>
+<!--        <item-->
+<!--            android:id="@+id/nav_my_orders"-->
+<!--            android:icon="@drawable/ic_my_order"-->
+<!--            android:title="@string/my_orders_title"/>-->
     </group>
     <item
         android:id="@+id/nav_language"

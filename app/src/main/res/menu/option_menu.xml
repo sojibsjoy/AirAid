@@ -5,17 +5,4 @@
         android:title="@string/user_manual_title"
         android:icon="@drawable/ic_user_manual"
         app:showAsAction="always" />
-<!--    <item android:id="@+id/item2"-->
-<!--        android:title="item 2"-->
-<!--        app:showAsAction="never" />-->
-<!--    <item android:id="@+id/item3"-->
-<!--        android:title="item 3"-->
-<!--        app:showAsAction="never">-->
-<!--        <menu>-->
-<!--            <item android:id="@+id/subItem1"-->
-<!--                android:title="Sub Item 1"/>-->
-<!--            <item android:id="@+id/subItem2"-->
-<!--                android:title="Sub Item 2"/>-->
-<!--        </menu>-->
-<!--    </item>-->
 </menu>

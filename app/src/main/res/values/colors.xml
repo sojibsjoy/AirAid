@@ -7,4 +7,5 @@
     <color name="pureBlack">#000000</color>
     <color name="img_warning">#FF1400</color>
     <color name="img_warning_blue">#404CF0</color>
+    <color name="list_selector">#40C5F0</color>
 </resources>

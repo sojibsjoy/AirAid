@@ -172,11 +172,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mf, "MainFragment").commit();
                 navigationView.setCheckedItem(R.id.nav_main);
                 break;
-            case R.id.nav_my_orders:
-                MyOrdersFragment mof = new MyOrdersFragment();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mof, "MyOrdersFragment").commit();
-                navigationView.setCheckedItem(R.id.nav_my_orders);
-                break;
             case R.id.nav_language:
                 languageDialog();
                 break;

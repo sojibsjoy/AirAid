@@ -53,4 +53,5 @@
     <string name="colony_field">Colony</string>
     <string name="mobile_no_field">Mobile No</string>
     <string name="total_order">Total Order:</string>
+    <string name="mobile_no_title">Mobile No:</string>
 </resources>
