@@ -2,17 +2,17 @@ package com.binarysoftwareltd.airaid;
 
 public class OrderSerial {
 
-    private int currentOrderSerial;
+    private String currentOrderSerial;
 
-    public OrderSerial(int currentOrderSerial) {
+    public OrderSerial(String currentOrderSerial) {
         this.currentOrderSerial = currentOrderSerial;
     }
 
-    public int getCurrentOrderSerial() {
+    public String getCurrentOrderSerial() {
         return currentOrderSerial;
     }
 
-    public void setCurrentOrderSerial(int currentOrderSerial) {
+    public void setCurrentOrderSerial(String currentOrderSerial) {
         this.currentOrderSerial = currentOrderSerial;
     }
 }

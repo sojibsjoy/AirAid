@@ -32,10 +32,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AddressFragment extends Fragment {
+    private boolean orderChecked = false;
     private String deviceID;
     private int orderNo;
     private int orderSerial;
@@ -43,7 +46,6 @@ public class AddressFragment extends Fragment {
     private static final String STATE_USER = "user";
     private String mUser;
     private View oldView;
-    private TextView numWarning;
     private EditText nameField, mobileNoField, areaField, houseNoField, wardNoField, roadNoField, colonyField, othersField;
     private CardView confirmCV;
     private int len;
@@ -52,8 +54,11 @@ public class AddressFragment extends Fragment {
     private String[] names = new String[100];
     private int[] pieces = new int[100];
     private String imageUri;
+    private String cTime;
     private Uri imgUri;
     private StorageReference stR;
+    private FirebaseDatabase fD;
+    private int progress;
 
     private void setAllData() {
         nameField.setText(nameOfPerson);
@@ -66,20 +71,6 @@ public class AddressFragment extends Fragment {
         othersField.setText(othersOfAddress);
     }
 
-    private void loadFromPhone() {
-        SharedPreferences prefs = getActivity().getSharedPreferences("Addresses", Activity.MODE_PRIVATE);
-        nameOfPerson = prefs.getString("name", "");
-        mobileNumber = prefs.getString("mobileNo", "");
-        areaName = prefs.getString("area", "");
-        houseNo = prefs.getString("houseNo", "");
-        wardNo = prefs.getString("wardNo", "");
-        roadNo = prefs.getString("roadNo", "");
-        colony = prefs.getString("colony", "");
-        othersOfAddress = prefs.getString("others", "");
-        if(mobileNumber!=null) {
-            setAllData();
-        }
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -131,17 +122,55 @@ public class AddressFragment extends Fragment {
         return v;
     }
 
-    private void saveToPhone() {
-        SharedPreferences.Editor editor = getActivity().getSharedPreferences("Addresses", getActivity().MODE_PRIVATE).edit();
-        editor.putString("name", nameOfPerson);
-        editor.putString("mobileNo", mobileNumber);
-        editor.putString("area", areaName);
-        editor.putString("houseNo", houseNo);
-        editor.putString("wardNo", wardNo);
-        editor.putString("roadNo", roadNo);
-        editor.putString("colony", colony);
-        editor.putString("others", othersOfAddress);
-        editor.apply();
+    @Override
+    public void onStart() {
+        if(mobileNumber.length()==11) {
+            dbr = fD.getReference("CurrentOrderSerial").child(deviceID).child(mobileNumber).child("currentOrderSerial");
+            dbr.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String value = dataSnapshot.getValue(String.class);
+                    if(value!=null) {
+                        orderSerial = Integer.valueOf(value);
+                        orderChecked = true;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        super.onStart();
+    }
+
+    private void initializeAll(@NonNull View v) {
+        fD = FirebaseDatabase.getInstance();
+        nameField = v.findViewById(R.id.nameField);
+        mobileNoField = v.findViewById(R.id.mobileNoField);
+        areaField = v.findViewById(R.id.areaField);
+        houseNoField = v.findViewById(R.id.houseNoField);
+        wardNoField = v.findViewById(R.id.wardNoField);
+        roadNoField = v.findViewById(R.id.roadNoField);
+        colonyField = v.findViewById(R.id.colonyField);
+        othersField = v.findViewById(R.id.othersField);
+        confirmCV = v.findViewById(R.id.confirmCV);
+    }
+
+    private void loadFromPhone() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("Addresses", Activity.MODE_PRIVATE);
+        nameOfPerson = prefs.getString("name", "");
+        mobileNumber = prefs.getString("mobileNo", "");
+        areaName = prefs.getString("area", "");
+        houseNo = prefs.getString("houseNo", "");
+        wardNo = prefs.getString("wardNo", "");
+        roadNo = prefs.getString("roadNo", "");
+        colony = prefs.getString("colony", "");
+        othersOfAddress = prefs.getString("others", "");
+        if (mobileNumber != null) {
+            setAllData();
+        }
     }
 
     private void checkDetails() {
@@ -161,24 +190,35 @@ public class AddressFragment extends Fragment {
 
     private void checkOrderSerial() {
         orderSerial = 0;
-        dbr = FirebaseDatabase.getInstance().getReference().child(deviceID + " sub");
-        DatabaseReference newDR = dbr.child(mobileNumber);
-        DatabaseReference newR = newDR.child("currentOrderSerial");
-        newR.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Integer value = dataSnapshot.getValue(Integer.class);
-                if (value != null) {
-                    orderSerial = value;
+        if(!orderChecked) {
+            dbr = fD.getReference("CurrentOrderSerial").child(deviceID).child(mobileNumber).child("currentOrderSerial");
+            dbr.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String value = dataSnapshot.getValue(String.class);
+                    if (value != null) {
+                        orderSerial = Integer.valueOf(value);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
         showConfirmDialog();
+    }
+
+    private void collectAllData() {
+        nameOfPerson = nameField.getText().toString();
+        mobileNumber = mobileNoField.getText().toString();
+        areaName = areaField.getText().toString();
+        houseNo = houseNoField.getText().toString();
+        wardNo = wardNoField.getText().toString();
+        roadNo = roadNoField.getText().toString();
+        colony = colonyField.getText().toString();
+        othersOfAddress = othersField.getText().toString();
     }
 
     private void showConfirmDialog() {
@@ -205,21 +245,22 @@ public class AddressFragment extends Fragment {
     private void setOrderSerial() {
         orderNo = orderSerial;
         orderNo += 1;
-        dbr = FirebaseDatabase.getInstance().getReference(deviceID + " sub");
-        OrderSerial osObject = new OrderSerial(orderNo);
+        dbr = fD.getReference("CurrentOrderSerial").child(deviceID);
+        OrderSerial osObject = new OrderSerial(orderNo+"");
         Map<String, Object> orderSerialMap = new HashMap<>();
         orderSerialMap.put(mobileNumber, osObject);
         dbr.updateChildren(orderSerialMap);
-        AddressOfOrder addressObject = new AddressOfOrder(nameOfPerson, mobileNumber,areaName,houseNo,wardNo,roadNo,colony,othersOfAddress);
-        DatabaseReference dtbsRfnc = dbr.child(mobileNumber);
+        AddressOfOrder addressObject = new AddressOfOrder(nameOfPerson, mobileNumber, areaName, houseNo, wardNo, roadNo, colony, othersOfAddress);
+        DatabaseReference dtbsRfnc = fD.getReference("Address");
         Map<String, Object> addressMap = new HashMap<>();
-        addressMap.put("Address", addressObject);
+        addressMap.put(mobileNumber, addressObject);
         dtbsRfnc.updateChildren(addressMap);
         uploadAllData();
     }
 
     private void uploadAllData() {
-        dbReference = FirebaseDatabase.getInstance().getReference(deviceID).child(mobileNumber).child("orderNo: " + orderNo);
+        getDateAndTime();
+        dbReference = FirebaseDatabase.getInstance().getReference("Queue").child(deviceID).child(mobileNumber).child("oNo: " + orderNo + " T&D: " + cTime);
         DataTemplate dtObject;
         Map<String, Object> orderMap = new HashMap<>();
         int i;
@@ -233,18 +274,18 @@ public class AddressFragment extends Fragment {
         ImageUploader();
     }
 
-    private String getExtension(Uri uri) {
-        ContentResolver cr = getActivity().getContentResolver();
-        MimeTypeMap mtm = MimeTypeMap.getSingleton();
-        return mtm.getExtensionFromMimeType(cr.getType(uri));
+    private void getDateAndTime() {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm dd-MM-yyyy");
+        cTime = df.format(c.getTime());
     }
 
     private void ImageUploader() {
-        if(imageUri!=null) {
+        if (imageUri != null) {
             imgUri = Uri.parse(imageUri);
             stR = FirebaseStorage.getInstance().getReference(deviceID);
             StorageReference dtR = stR.child(mobileNumber);
-            StorageReference ref = dtR.child("orderNo: " + orderNo+ "." + getExtension(imgUri));
+            StorageReference ref = dtR.child("oNo: " + orderNo + " T&D: " + cTime + "." + getExtension(imgUri));
             ref.putFile(imgUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -263,27 +304,23 @@ public class AddressFragment extends Fragment {
         }
     }
 
-    private void collectAllData() {
-        nameOfPerson = nameField.getText().toString();
-        mobileNumber = mobileNoField.getText().toString();
-        areaName = areaField.getText().toString();
-        houseNo = houseNoField.getText().toString();
-        wardNo = wardNoField.getText().toString();
-        roadNo = roadNoField.getText().toString();
-        colony = colonyField.getText().toString();
-        othersOfAddress = othersField.getText().toString();
+    private String getExtension(Uri uri) {
+        ContentResolver cr = getActivity().getContentResolver();
+        MimeTypeMap mtm = MimeTypeMap.getSingleton();
+        return mtm.getExtensionFromMimeType(cr.getType(uri));
     }
 
-    private void initializeAll(@NonNull View v) {
-        numWarning = v.findViewById(R.id.numWarning);
-        nameField = v.findViewById(R.id.nameField);
-        mobileNoField = v.findViewById(R.id.mobileNoField);
-        areaField = v.findViewById(R.id.areaField);
-        houseNoField = v.findViewById(R.id.houseNoField);
-        wardNoField = v.findViewById(R.id.wardNoField);
-        roadNoField = v.findViewById(R.id.roadNoField);
-        colonyField = v.findViewById(R.id.colonyField);
-        othersField = v.findViewById(R.id.othersField);
-        confirmCV = v.findViewById(R.id.confirmCV);
+    private void saveToPhone() {
+        SharedPreferences.Editor editor = getActivity().getSharedPreferences("Addresses", getActivity().MODE_PRIVATE).edit();
+        editor.putString("name", nameOfPerson);
+        editor.putString("mobileNo", mobileNumber);
+        editor.putString("area", areaName);
+        editor.putString("houseNo", houseNo);
+        editor.putString("wardNo", wardNo);
+        editor.putString("roadNo", roadNo);
+        editor.putString("colony", colony);
+        editor.putString("others", othersOfAddress);
+        editor.apply();
     }
+
 }
