@@ -3,8 +3,11 @@ package com.binarysoftwareltd.airaid;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,8 +24,10 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,17 +37,17 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.droidsonroids.gif.GifImageView;
+
 public class AddressFragment extends Fragment {
-    private boolean orderChecked = false;
     private String deviceID;
-    private int orderNo;
-    private int orderSerial;
-    private DatabaseReference dbr, dbReference;
+    private DatabaseReference dbReference;
     private static final String STATE_USER = "user";
     private String mUser;
     private View oldView;
@@ -55,10 +60,14 @@ public class AddressFragment extends Fragment {
     private int[] pieces = new int[100];
     private String imageUri;
     private String cTime;
+    private String cDate;
     private Uri imgUri;
     private StorageReference stR;
     private FirebaseDatabase fD;
-    private int progress;
+    private AlertDialog.Builder alb;
+    private AlertDialog ald;
+    private int count;
+    private GifImageView gifImageView;
 
     private void setAllData() {
         nameField.setText(nameOfPerson);
@@ -122,29 +131,6 @@ public class AddressFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onStart() {
-        if(mobileNumber.length()==11) {
-            dbr = fD.getReference("CurrentOrderSerial").child(deviceID).child(mobileNumber).child("currentOrderSerial");
-            dbr.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String value = dataSnapshot.getValue(String.class);
-                    if(value!=null) {
-                        orderSerial = Integer.valueOf(value);
-                        orderChecked = true;
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-        super.onStart();
-    }
-
     private void initializeAll(@NonNull View v) {
         fD = FirebaseDatabase.getInstance();
         nameField = v.findViewById(R.id.nameField);
@@ -173,43 +159,6 @@ public class AddressFragment extends Fragment {
         }
     }
 
-    private void checkDetails() {
-        if (!mobileNumber.equals("")) {
-            //this condition must be equals to 11
-            if (mobileNumber.length() == 11) {
-                checkOrderSerial();
-            } else {
-                mobileNoField.requestFocus();
-                Toast.makeText(getContext(), R.string.number_valid_warning, Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            mobileNoField.requestFocus();
-            Toast.makeText(getContext(), R.string.number_warning, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void checkOrderSerial() {
-        orderSerial = 0;
-        if(!orderChecked) {
-            dbr = fD.getReference("CurrentOrderSerial").child(deviceID).child(mobileNumber).child("currentOrderSerial");
-            dbr.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String value = dataSnapshot.getValue(String.class);
-                    if (value != null) {
-                        orderSerial = Integer.valueOf(value);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-        showConfirmDialog();
-    }
-
     private void collectAllData() {
         nameOfPerson = nameField.getText().toString();
         mobileNumber = mobileNoField.getText().toString();
@@ -219,6 +168,21 @@ public class AddressFragment extends Fragment {
         roadNo = roadNoField.getText().toString();
         colony = colonyField.getText().toString();
         othersOfAddress = othersField.getText().toString();
+    }
+
+    private void checkDetails() {
+        if (!mobileNumber.equals("")) {
+            //this condition must be equals to 11
+            if (mobileNumber.length() == 11) {
+                showConfirmDialog();
+            } else {
+                mobileNoField.requestFocus();
+                Toast.makeText(getContext(), R.string.number_valid_warning, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            mobileNoField.requestFocus();
+            Toast.makeText(getContext(), R.string.number_warning, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showConfirmDialog() {
@@ -235,32 +199,41 @@ public class AddressFragment extends Fragment {
         alb.setNegativeButton(R.string.exit_yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                setOrderSerial();
+                setAddress();
             }
         });
         AlertDialog ald = alb.create();
         ald.show();
     }
 
-    private void setOrderSerial() {
-        orderNo = orderSerial;
-        orderNo += 1;
-        dbr = fD.getReference("CurrentOrderSerial").child(deviceID);
-        OrderSerial osObject = new OrderSerial(orderNo+"");
-        Map<String, Object> orderSerialMap = new HashMap<>();
-        orderSerialMap.put(mobileNumber, osObject);
-        dbr.updateChildren(orderSerialMap);
-        AddressOfOrder addressObject = new AddressOfOrder(nameOfPerson, mobileNumber, areaName, houseNo, wardNo, roadNo, colony, othersOfAddress);
-        DatabaseReference dtbsRfnc = fD.getReference("Address");
-        Map<String, Object> addressMap = new HashMap<>();
-        addressMap.put(mobileNumber, addressObject);
-        dtbsRfnc.updateChildren(addressMap);
-        uploadAllData();
+    private void setAddress() {
+        showGifDialog();
+        if(haveNetworkConnection()) {
+            AddressOfOrder addressObject = new AddressOfOrder(nameOfPerson, mobileNumber, areaName, houseNo, wardNo, roadNo, colony, othersOfAddress);
+            DatabaseReference dtR = fD.getReference("Address");
+            Map<String, Object> addressMap = new HashMap<>();
+            addressMap.put(mobileNumber, addressObject);
+            dtR.updateChildren(addressMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        uploadAllData();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to Submit your Order!", Toast.LENGTH_SHORT).show();
+                        ald.dismiss();
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(getContext(), "Network Error!", Toast.LENGTH_SHORT).show();
+            ald.dismiss();
+        }
     }
+
 
     private void uploadAllData() {
         getDateAndTime();
-        dbReference = FirebaseDatabase.getInstance().getReference("Queue").child(deviceID).child(mobileNumber).child("oNo: " + orderNo + " T&D: " + cTime);
+        dbReference = FirebaseDatabase.getInstance().getReference("Queue").child(deviceID).child(mobileNumber).child("Time: " + cTime + " Date: " + cDate);
         DataTemplate dtObject;
         Map<String, Object> orderMap = new HashMap<>();
         int i;
@@ -276,8 +249,10 @@ public class AddressFragment extends Fragment {
 
     private void getDateAndTime() {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("HH:mm dd-MM-yyyy");
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat dF = new SimpleDateFormat("dd-MM-yyyy");
         cTime = df.format(c.getTime());
+        cDate = dF.format(c.getTime());
     }
 
     private void ImageUploader() {
@@ -285,13 +260,12 @@ public class AddressFragment extends Fragment {
             imgUri = Uri.parse(imageUri);
             stR = FirebaseStorage.getInstance().getReference(deviceID);
             StorageReference dtR = stR.child(mobileNumber);
-            StorageReference ref = dtR.child("oNo: " + orderNo + " T&D: " + cTime + "." + getExtension(imgUri));
+            StorageReference ref = dtR.child("Time: " + cTime + " Date: " + cDate + "." + getExtension(imgUri));
             ref.putFile(imgUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            // Get a URL to the uploaded content
-                            //Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -301,6 +275,55 @@ public class AddressFragment extends Fragment {
                             // ...
                         }
                     });
+        }
+        ald.dismiss();
+        setCheckGif();
+    }
+
+    private void showGifDialog() {
+        alb = new AlertDialog.Builder(getContext());
+        LayoutInflater factory = LayoutInflater.from(getContext());
+        final View view = factory.inflate(R.layout.confirm_layout, null);
+        gifImageView = view.findViewById(R.id.gifView);
+        gifImageView.setImageResource(R.drawable.loading);
+        alb.setTitle("Please Wait...");
+        alb.setView(view);
+        ald = alb.create();
+        ald.show();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                doWork();
+//                ald.dismiss();
+            }
+        });
+        thread.start();
+    }
+
+    private void setCheckGif() {
+        AlertDialog.Builder aldb = new AlertDialog.Builder(getContext());
+        LayoutInflater factory = LayoutInflater.from(getContext());
+        final View view = factory.inflate(R.layout.confirm_layout, null);
+        gifImageView = view.findViewById(R.id.gifView);
+        gifImageView.setImageResource(R.drawable.check);
+        aldb.setTitle("Order Submitted!");
+        aldb.setView(view);
+        aldb.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dlg, int something) {
+                dlg.dismiss();
+            }
+        });
+        AlertDialog altd = aldb.create();
+        altd.show();
+    }
+
+    private void doWork() {
+        for(count=1; count<=4; count++) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Toast.makeText(getContext(),e.toString(),Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -321,6 +344,23 @@ public class AddressFragment extends Fragment {
         editor.putString("colony", colony);
         editor.putString("others", othersOfAddress);
         editor.apply();
+    }
+
+    private boolean haveNetworkConnection() {
+        boolean haveConnectedWifi = false;
+        boolean haveConnectedMobile = false;
+
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo) {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                if (ni.isConnected())
+                    haveConnectedWifi = true;
+            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+                if (ni.isConnected())
+                    haveConnectedMobile = true;
+        }
+        return haveConnectedWifi || haveConnectedMobile;
     }
 
 }
