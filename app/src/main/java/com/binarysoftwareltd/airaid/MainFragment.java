@@ -242,7 +242,7 @@ public class MainFragment extends Fragment {
         }
     };
 
-    private void initializeAll(View v) {
+    private void initializeAll(@NonNull View v) {
         uploadCV = v.findViewById(R.id.uploadCV);
         warningTV = v.findViewById(R.id.warningTV);
         serials[0] = v.findViewById(R.id.serialNumI);

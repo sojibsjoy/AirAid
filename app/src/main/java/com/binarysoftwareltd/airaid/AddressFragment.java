@@ -62,6 +62,7 @@ public class AddressFragment extends Fragment {
     private String cTime;
     private String cDate;
     private Uri imgUri;
+    private String imgUrl;
     private StorageReference stR;
     private FirebaseDatabase fD;
     private AlertDialog.Builder alb;
@@ -69,16 +70,6 @@ public class AddressFragment extends Fragment {
     private int count;
     private GifImageView gifImageView;
 
-    private void setAllData() {
-        nameField.setText(nameOfPerson);
-        mobileNoField.setText(mobileNumber);
-        areaField.setText(areaName);
-        houseNoField.setText(houseNo);
-        wardNoField.setText(wardNo);
-        roadNoField.setText(roadNo);
-        colonyField.setText(colony);
-        othersField.setText(othersOfAddress);
-    }
 
 
     @Override
@@ -157,6 +148,17 @@ public class AddressFragment extends Fragment {
         if (mobileNumber != null) {
             setAllData();
         }
+    }
+
+    private void setAllData() {
+        nameField.setText(nameOfPerson);
+        mobileNoField.setText(mobileNumber);
+        areaField.setText(areaName);
+        houseNoField.setText(houseNo);
+        wardNoField.setText(wardNo);
+        roadNoField.setText(roadNo);
+        colonyField.setText(colony);
+        othersField.setText(othersOfAddress);
     }
 
     private void collectAllData() {
@@ -265,14 +267,16 @@ public class AddressFragment extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
+                            imgUrl = taskSnapshot.getStorage().getDownloadUrl().toString();
+                            DatabaseReference dRef = fD.getReference("Image").child(deviceID);
+                            DatabaseReference imgRef = dRef.child(mobileNumber).child("Time: " + cTime + " Date: " + cDate);
+                            imgRef.setValue(imgUrl);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-                            // ...
+                            Toast.makeText(getContext(),"Image Upload Failed!",Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -318,9 +322,9 @@ public class AddressFragment extends Fragment {
     }
 
     private void doWork() {
-        for(count=1; count<=4; count++) {
+        for(count=1; count<=6; count++) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(700);
             } catch (InterruptedException e) {
                 Toast.makeText(getContext(),e.toString(),Toast.LENGTH_SHORT).show();
             }
